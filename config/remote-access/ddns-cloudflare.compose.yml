@@ -1,0 +1,19 @@
+services:
+  cloudflare-ddns:
+    image: favonia/cloudflare-ddns:1   # "1" verfolgt die aktuelle stabile 1.x-Version
+    container_name: cloudflare_ddns
+    network_mode: host                 # vereinfacht die IP-Erkennung (v4/v6)
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - all
+    read_only: true
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}  # Scoped Token: Zone.DNS Edit
+      - DOMAINS=${CF_DOMAINS}                          # z. B. photos.example.org
+      # WICHTIG fuer Immich: PROXIED=false (DNS only / graue Wolke), damit der
+      # Datenverkehr NICHT durch den Cloudflare-Proxy laeuft und das 100-MB-
+      # Upload-Limit nicht greift.
+      - PROXIED=false
+    # Werte werden aus der Datei .env neben dieser Compose-Datei gelesen.

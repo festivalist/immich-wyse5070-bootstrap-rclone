@@ -1,0 +1,14 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    network_mode: host        # damit der Connector lokal http://localhost:2283 erreicht
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}   # Token aus dem Cloudflare Zero Trust Dashboard
+    # Hinweis: Die oeffentliche Hostname-zu-Service-Zuordnung wird im Cloudflare
+    # Zero Trust Dashboard konfiguriert (Service: http://localhost:2283).
+    # ACHTUNG: Cloudflare Free begrenzt Uploads auf 100 MB. Fuer das Hochladen
+    # grosser Videos ist dieser Weg ungeeignet - dafuer lokale URL oder Tailscale
+    # nutzen. Werte aus der Datei .env neben dieser Compose-Datei.

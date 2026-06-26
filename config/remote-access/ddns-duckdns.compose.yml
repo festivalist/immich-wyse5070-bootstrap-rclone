@@ -1,0 +1,12 @@
+services:
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAINS}   # z. B. meinimmich (ohne .duckdns.org)
+      - TOKEN=${DUCKDNS_TOKEN}             # Token aus dem DuckDNS-Konto
+      - UPDATE_IP=ipv4
+      - LOG_FILE=false
+    # Werte werden aus der Datei .env neben dieser Compose-Datei gelesen.

@@ -1,0 +1,12 @@
+services:
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx_proxy_manager
+    restart: unless-stopped
+    ports:
+      - '80:80'      # HTTP (Let's-Encrypt-Validierung und Weiterleitung)
+      - '81:81'      # Admin-Oberflaeche - NICHT ins Internet freigeben
+      - '443:443'    # HTTPS
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt

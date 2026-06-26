@@ -1,0 +1,13 @@
+[Unit]
+Description=Immich lokales Backup auf zweite HDD
+Requires=docker.service
+After=docker.service
+# Beide HDDs muessen gemountet sein, bevor das Backup startet.
+RequiresMountsFor=/mnt/immich-data /mnt/immich-backup
+
+[Service]
+Type=oneshot
+ExecStart=/opt/immich/scripts/immich-backup.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

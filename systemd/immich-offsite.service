@@ -1,0 +1,12 @@
+[Unit]
+Description=Immich Offsite-Backup (rclone) ins Cloud-/Remote-Ziel
+Requires=docker.service
+After=docker.service immich-backup.service
+RequiresMountsFor=/mnt/immich-backup
+
+[Service]
+Type=oneshot
+ExecStart=/opt/immich/scripts/immich-offsite.sh
+Nice=15
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
