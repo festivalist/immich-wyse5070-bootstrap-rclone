@@ -48,7 +48,7 @@ Auf einem frisch installierten Ubuntu Server 24.04 LTS:
 
 ```bash
 # 1. Skript herunterladen (Repo-URL anpassen, siehe Checkliste)
-curl -fsSL https://raw.githubusercontent.com/<DEIN-USER>/immich-wyse5070-bootstrap-rclone/main/bootstrap.sh -o bootstrap.sh
+curl -fsSL https://raw.githubusercontent.com/festivalist/immich-wyse5070-bootstrap-rclone/main/bootstrap.sh -o bootstrap.sh
 
 # 2. Sichtpruefung
 less bootstrap.sh
