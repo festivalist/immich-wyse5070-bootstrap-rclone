@@ -216,11 +216,11 @@ install_immich_files() {
 # Immich Umgebung fuer Docker Compose
 # Diese Datei wird von docker compose gelesen.
 TZ=Europe/Berlin
-# Auf den Major-Release v2 gepinnt: zieht automatisch alle v2.x-Updates,
-# aber KEINEN Sprung auf einen naechsten Major (z. B. v3), der die
+# Auf den Major-Release v3 gepinnt: zieht automatisch alle v3.x-Updates,
+# aber KEINEN Sprung auf einen naechsten Major (z. B. v4), der die
 # Installation unbemerkt brechen koennte. Bewusstes Major-Upgrade:
 # diesen Wert anpassen und vorher das Immich-Changelog lesen.
-IMMICH_VERSION=v2
+IMMICH_VERSION=v3
 UPLOAD_LOCATION=${DATA_MOUNT}/photos
 DB_DATA_LOCATION=${DATA_MOUNT}/postgres
 MODEL_CACHE_LOCATION=${DATA_MOUNT}/model-cache
@@ -263,6 +263,9 @@ services:
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
     volumes:
       - ${MODEL_CACHE_LOCATION}:/cache
+    # v3: Modell-Revision v2 wie im offiziellen v3-Compose-Template (Stand 11/2026).
+    environment:
+      MACHINE_LEARNING_MODEL_REVISION: 'v2'
     env_file:
       - .env
     restart: always
@@ -288,6 +291,8 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_DB: ${DB_DATABASE_NAME}
       POSTGRES_INITDB_ARGS: '--data-checksums'
+      # v3: DB liegt auf HDD (/mnt/immich-data), daher offizielles HDD-Tuning.
+      DB_STORAGE_TYPE: 'HDD'
     volumes:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     shm_size: 128mb

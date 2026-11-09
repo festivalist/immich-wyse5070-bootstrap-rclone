@@ -15,10 +15,8 @@ services:
       database:
         condition: service_healthy
     # /dev/dri wird fuer Hardware-Transcoding (Intel QuickSync) durchgereicht.
-    # Falls im Container Rechtefehler auf renderD128 auftreten, die Render-Gruppe
-    # des Hosts ergaenzen (siehe Handbuch, QuickSync-Troubleshooting):
-    #   group_add:
-    #     - "<GID der Gruppe render auf dem Host>"
+    # Bei Rechtefehlern auf renderD128 die Render-Gruppe des Hosts ergaenzen
+    # (siehe Handbuch, QuickSync-Troubleshooting): group_add: ["<render-GID>"]
     devices:
       - /dev/dri:/dev/dri
     restart: always
@@ -27,14 +25,14 @@ services:
 
   immich-machine-learning:
     container_name: immich_machine_learning
-    # Hinweis: Das Standard-Image nutzt KEINE GPU. Das Durchreichen von /dev/dri
-    # an diesen Container hat mit dem Standard-Image keinen Effekt und wurde
-    # daher bewusst entfernt. Fuer Intel-ML-Beschleunigung waere stattdessen das
-    # Image-Suffix "-openvino" zusammen mit hwaccel.ml.yml noetig. Auf dem
-    # Wyse 5070 ist CPU-ML in der Regel ausreichend und stabil.
+    # Standard-Image nutzt CPU. /dev/dri wird hier bewusst NICHT durchgereicht,
+    # da es ohne das "-openvino"-Image keinen Effekt haette.
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
     volumes:
       - ${MODEL_CACHE_LOCATION}:/cache
+    # v3: Modell-Revision v2 wie im offiziellen v3-Compose-Template (Stand 11/2026).
+    environment:
+      MACHINE_LEARNING_MODEL_REVISION: 'v2'
     env_file:
       - .env
     restart: always
@@ -60,6 +58,8 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_DB: ${DB_DATABASE_NAME}
       POSTGRES_INITDB_ARGS: '--data-checksums'
+      # v3: DB liegt auf HDD (/mnt/immich-data), daher offizielles HDD-Tuning.
+      DB_STORAGE_TYPE: 'HDD'
     volumes:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     shm_size: 128mb

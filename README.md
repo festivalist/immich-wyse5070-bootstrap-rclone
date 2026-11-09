@@ -1,15 +1,17 @@
-# Immich auf Dell Wyse 5070 — Bootstrap & lokales rclone-Backup (v5)
+# Immich auf Dell Wyse 5070 — Bootstrap & lokales rclone-Backup (v6)
 
 Hochladefertige Dateien fuer den im Handbuch beschriebenen Aufbau: Immich auf
 Ubuntu Server 24.04 LTS, Docker Compose, Intel QuickSync und ein automatisches,
 versioniertes lokales Backup auf eine zweite HDD per rclone und systemd-Timer.
 Optional: Fernzugriff (Tailscale/DuckDNS/Cloudflare) und ein Offsite-Backup.
 
-> **Was ist neu in v5?** Siehe `CHANGELOG.md`. Kurz: korrekte Tailscale-URL aus
-> v4 uebernommen, Immich auf den Major `v2` gepinnt, Valkey 9, DB-Healthcheck mit
-> `depends_on: service_healthy`, schonenderer Backup-Lauf (taeglich Groesse+Zeit,
-> sonntags volle Pruefsumme), `RequiresMountsFor` im Backup-Timer und ein
-> optionales Offsite-Backup-Skript fuer die 3-2-1-Regel.
+> **Was ist neu in v6?** Siehe `CHANGELOG.md`. Kurz: Immich auf den Major `v3`
+> gepinnt und das Compose-Template an das offizielle v3-Layout angeglichen
+> (`DB_STORAGE_TYPE: 'HDD'` fuer die Datenbank auf der HDD sowie
+> `MACHINE_LEARNING_MODEL_REVISION: 'v2'` fuer die neue ML-Modellgeneration).
+> Der Pfad wurde in der Produktiv-Installation am 09.11.2026 validiert:
+> In-Place-Migration v2.7.5 → v3.3.6 lief fehlerfrei, alle DB-Migrationen
+> erfolgreich, alle Healthchecks gruen.
 
 ## Repo-Struktur
 
@@ -72,7 +74,7 @@ Das Skript fragt interaktiv die beiden Datentraeger ab und verlangt eine exakte
 | 5 | Daten-HDD | interaktive Abfrage beim Lauf | richtiges Gerät wählen (z. B. `/dev/sda`) | Ja |
 | 6 | Backup-HDD | interaktive Abfrage beim Lauf | richtiges Gerät wählen (z. B. `/dev/sdb`) | Ja |
 | 7 | DB-Passwort | `/opt/immich/.env` | wird automatisch zufällig erzeugt — nichts tun | Auto |
-| 8 | Immich-Version | `/opt/immich/.env` → `IMMICH_VERSION` | Standard `v2` (Major gepinnt). Major-Upgrade bewusst durchführen | Auto |
+| 8 | Immich-Version | `/opt/immich/.env` → `IMMICH_VERSION` | Standard `v3` (Major gepinnt). Major-Upgrade bewusst durchführen | Auto |
 | 9 | Optional HTTPS | Nginx Proxy Manager | Domain/DynDNS, Router-Portfreigabe, Proxy-Host | Optional |
 | 10 | Optional Offsite | `/opt/immich/offsite.env` | rclone-Remote anlegen, dann Timer aktivieren | Empfohlen |
 
@@ -140,9 +142,13 @@ Offsite-Ziel und rührt die Produktivdaten nicht an.
 
 ## Wichtige Hinweise
 
-- **Immich-Version gepinnt:** `IMMICH_VERSION=v2` zieht automatisch alle
-  `v2.x`-Updates, aber keinen unbemerkten Sprung auf einen nächsten Major.
+- **Immich-Version gepinnt:** `IMMICH_VERSION=v3` zieht automatisch alle
+  `v3.x`-Updates, aber keinen unbemerkten Sprung auf einen nächsten Major.
   Ein Major-Upgrade bewusst durchführen und vorher das Immich-Changelog lesen.
+- **Compose-Anpassungen für v3:** Der Datenbank-Container setzt
+  `DB_STORAGE_TYPE: 'HDD'` (Produktivdaten liegen auf einer HDD) und der
+  ML-Container läuft mit `MACHINE_LEARNING_MODEL_REVISION: 'v2'` — entsprechend
+  dem offiziellen v3-Compose-Template von Immich.
 - **Restore:** `restore-postgres.sh` enthält die für die VectorChord-/pgvector-
   Erweiterung nötige `search_path`-Korrektur. Ohne sie schlägt ein
   Datenbank-Restore fehl. Alternativ kann ab Immich v2.5.0 auch die in der
